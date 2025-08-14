@@ -39,3 +39,67 @@ footer {
     text-align: center;
     padding: 10px;
 }
+
+.add-client, .client-list{
+    background: white;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+}
+
+.add-client h2, .client-list h2{
+    margin-bottom: 15px;
+}
+
+.add-client label{
+    display: block;
+    margin: 8px 0 4px;
+}
+
+.add-client input, .add-client select{
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.add-client button{
+    margin-top: 10px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+}
+.add-client button:hover{
+    background: #1d4ed8;
+}
+.client-list table{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.client-list th, .client-list td{
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.client-list th{
+    background: #f4f4f4;
+}
+
+.delete-btn{
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.delete-btn:hover{
+    background: #b91c1c;
+}

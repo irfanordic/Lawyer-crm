@@ -33,8 +33,8 @@
                 <label for="rate">Hourly rate (USD)</label>
                 <input type="number" id="rate" placeholder="eg:150" min="0" required>
                 
-                <label for="casetype">Case type</label>
-                <select  id="casetype" required>
+                <label for="caseType">Case type</label>
+                <select  id="caseType" required>
                     <option value="">-- Select --</option>
                     <option value="Mental Health Law">Mental Health Law</option>
                     <option value="Real Estate">Real Estate</option>
@@ -44,6 +44,26 @@
                 <button type="submit">Add client</button>
                 </form>
             </section>
+
+            <section class="client-list">
+                <h2>Clients</h2>
+                <table id="clientTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Case type</th>
+                        <th>Rate</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                    <tbody></tbody>
+                </table>
+
+
+            </section>
+
+
+
     </main>
 
 
