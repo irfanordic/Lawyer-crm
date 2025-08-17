@@ -1,8 +1,28 @@
-console.log("jsfile is connecte dto index html");
+
+//adding local storage , ssaving it.
+function saveClients(){
+  localStorage.setItem("clients" , JSON.stringify(clients));
+}
+
+//localstorage.restoring it 
+function loadClients(){
+  const stored = localStorage.getItem("clients");
+  if (stored){
+    clients = JSON.parse(stored);
+  }
+}
+
+console.log("jsfile is connected to index html");
 
 let clients = [];
 
 document.addEventListener("DOMContentLoaded", function() {
+
+  //calling these two to load when refreshed 
+loadClients();
+
+renderClients();
+
     const form = document.getElementById("clientForm");
     
     
@@ -16,6 +36,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const newClient = {name, rate, caseType};
 
     clients.push(newClient);
+    saveClients();
 
     renderClients();
 
@@ -48,6 +69,7 @@ function renderClients(){
         button.addEventListener("click", function () {
           const idx = parseInt(this.getAttribute("data-index"));
           clients.splice(idx, 1);
+          saveClients();
 
           renderClients(tbody);
         })
