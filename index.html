@@ -58,9 +58,30 @@
                 </thead>
                     <tbody></tbody>
                 </table>
+         </section>
 
 
-            </section>
+         <section class="timer-card">
+            <h2>Track time</h2>
+            <div class="timer-row">
+                <label for="timerClientSelect">Client</label>
+                <select name="" id="timerClientSelect">
+                    <option value="">--Select--</option>
+                </select>  
+            </div>
+
+            <div class="timer-row">
+                <label for="timerTask">Task</label>
+                <input type="text" placeholder="e.g task details" id="timerTask">
+            </div>
+
+            <div class="timer-controls">
+                <button id="startBtn" class="btn-primary">Start</button>
+                <button id="stopBtn" class="btn-danger">Stop</button> 
+                <span class="elapsed" id="elapsed">00:00:00</span>
+                <p class="hint">Timer creates a datas like date ,start ,end ,task ,hours ,hourly rate ,total </p>
+            </div>
+         </section>
 
 
 

@@ -74,8 +74,43 @@ function renderClients(){
           renderClients(tbody);
         })
       })
-}}
+}   
+
+
+//Timer Functions 
+
+
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+const elapsedEl= document.getElementById("elapsed");
+
+let currentTimer = JSON.parse(localStorage.getItem("currentTimer") || null);
+let tickHandle = null;
+
+
+function setButton(running){
+  startBtn.disabled = running;
+  stopBtn.disabled = !running;
+}
+ 
+function fmt(h, m, s){
+  return `${String(h).padStart(2,"0")}:${string(m).padStart(2,"0")}:${string(s).padStart(2,"0")}`;
+}
+
+function updateElapsed(){
+  if(!currentTimer){
+    elapsedEl.textContent = "00:00:00";
+
+  }
+  const ms = Date.now - new Date(currentTimer.startISO).getTime();
+  const secs= Math.floor(ms/1000);
+  const h = Math.floor(secs%3600);
+  const m = Math.floor(secs % 3600) / 60;
+  const s = secs % 60;
+  elapsedEl.textContent = fmt(h ,m ,s );
+}
 
 
 
+}
 )
