@@ -1,5 +1,7 @@
 
 //adding local storage , ssaving it.
+
+
 function saveClients(){
   localStorage.setItem("clients" , JSON.stringify(clients));
 }
@@ -15,13 +17,15 @@ function loadClients(){
 console.log("jsfile is connected to index html");
 
 let clients = [];
+let timeEntries = JSON.parse(localStorage.getItem("timeEntries")) || [];
 
 document.addEventListener("DOMContentLoaded", function() {
-
+  
   //calling these two to load when refreshed 
 loadClients();
 
 renderClients();
+renderTimeEntries();
 
     const form = document.getElementById("clientForm");
     
@@ -141,11 +145,11 @@ function stopTick(){
 }
  //restores throughout the refresh
 if(currentTimer){
-  setButtons = (true);
+  setButtons(true);
   startTick();
 
 }
-
+//startBtn
 startBtn.addEventListener("click", () => {
   const clientName = document.getElementById("timerClientSelect").value;
   const task = document.getElementById("timerTask").value;
@@ -172,7 +176,7 @@ startBtn.addEventListener("click", () => {
 
 
 })
-
+//stopBtn
 stopBtn.addEventListener("click", () => {
   if(!currentTimer) return;
 //confirmation  for stopbtn
@@ -182,23 +186,80 @@ if(!confirmStop) return;
   const endISO = new Date().toISOString();
   const start = new Date(currentTimer.startISO).getTime();
   const end = new Date(endISO).getTime();
-  const hours = (end- start)/3600000;
+  const hours = (end - start)/3600000;
 
-   console.log("Task completed " ,{ client : currentTimer.clientName,
+ 
+
+
+
+
+
+
+
+  
+
+  
+  //update,stopbtn wil push these details into an array and store in localstorage
+    const entry=               { client : currentTimer.clientName,
                                  task : currentTimer.task,
-                                 hours : hours.toFixed(2),
-                                 start,end
+                                 start : currentTimer.startISO,
+                                 end   : endISO,
+                                 hours : parseFloat(hours.toFixed(2))}
+
+                                 
+  timeEntries.push(entry);
+
+localStorage.setItem("timeEntries", JSON.stringify(timeEntries));
+
+renderTimeEntries();
+
+
+currentTimer= null;
+localStorage.removeItem("currentTimer");
+stopTick();
+updateElapsed();
+setButtons(false);                          
                                 
-  });
+});
+
+  
+
+
+  //funtion to display the history on the table 
+  function renderTimeEntries(){
+    const tbody = document.querySelector("#taskTable tbody");
+    if(!tbody)return;
+    tbody.innerHTML = "";
    
-  currentTimer= null;
-  localStorage.removeItem("currentTimer");
-  stopTick();
-  updateElapsed();
-  setButtons(false);
+    const entries= [...timeEntries].sort((a, b)=> new Date(b.end) - new Date(a.end));
+
+    entries.forEach((e) => {
+      const client = clients.find(c=>c.name === e.client);
+      const rateNum = client? parseFloat(client.rate): 0;
+      const hoursNum = typeof e.hours ==="number"?e.hours : parseFloat(e.hours);
+
+      const total = (hoursNum * rateNum).toFixed(2);
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+                       <td>${e.client}</td>
+                        <td>${e.task}</td>
+                         <td>${new Date(e.start).toLocaleString()}</td>
+                          <td>${new Date(e.end).toLocaleString()}</td>
+                           <td>${hoursNum.toFixed(2)}</td>
+                            <td>$${rateNum.toFixed(2)}</td>
+                             <td>$${total}</td>
+                             `;
+     
+    tbody.appendChild(tr);
+
+
+    })
+   
+
+  }
 })
 
 
 
-}
-)
+

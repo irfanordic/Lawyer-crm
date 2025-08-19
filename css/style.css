@@ -210,3 +210,31 @@ footer {
     text-align: center;
   }
   
+  .task-history {
+    background: white;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 800px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .task-history h2 {
+    margin-bottom: 15px;
+  }
+  
+  .task-history table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .task-history th, .task-history td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  .task-history th {
+    background: #f4f4f4;
+  }
+  
