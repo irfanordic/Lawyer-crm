@@ -1,7 +1,6 @@
 
 //adding local storage , ssaving it.
-
-
+let currentFilter = localStorage.getItem("currentFilter") || "All Clients";
 function saveClients(){
   localStorage.setItem("clients" , JSON.stringify(clients));
 }
@@ -26,6 +25,7 @@ loadClients();
 
 renderClients();
 renderTimeEntries();
+populateClientFilter();
 
     const form = document.getElementById("clientForm");
     
@@ -91,6 +91,8 @@ function renderClients(){
           saveClients();
 
           renderClients(tbody);
+
+          populateClientFilter();
         })
       })
 }   
@@ -232,7 +234,12 @@ setButtons(false);
     if(!tbody)return;
     tbody.innerHTML = "";
    
-    const entries= [...timeEntries].sort((a, b)=> new Date(b.end) - new Date(a.end));
+     let entries = [...timeEntries];
+     if(currentFilter != "All Clients"){
+     entries = entries.filter(e => e.client === currentFilter);
+     }
+
+     entries.sort((a, b)=> new Date(b.end) - new Date(a.end));
 
     entries.forEach((e) => {
       const client = clients.find(c=>c.name === e.client);
@@ -270,7 +277,49 @@ setButtons(false);
    
 
   }
+//function to populating the filter in task history sheet
+function populateClientFilter(){
+  const filterSelect = document.getElementById("currentFilter");
+  if(!filterSelect) return;
+   
+  filterSelect.innerHTML= "";
+
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "All Clients";
+  defaultOption.textContent = "All Clients";
+  filterSelect.appendChild(defaultOption);
+
+
+   
+   clients.forEach(client =>{
+
+    const option = document.createElement("option");
+    option.value = client.name;
+    option.textContent = client.name;
+    filterSelect.appendChild(option);
+
+    filterSelect.value = currentFilter;
+       
+
+   })
+
+   filterSelect.value = currentFilter;
+   
+
+
+
+
+}
+
+ 
+const filterSelect = document.getElementById("currentFilter");
+filterSelect.addEventListener("change",(e)=>{
+  currentFilter = e.target.value;
+  localStorage.setItem("currentFilter", JSON.stringify(currentFilter));
+  renderTimeEntries();
 })
+})
+
 
 
 
