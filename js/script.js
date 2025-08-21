@@ -200,7 +200,8 @@ if(!confirmStop) return;
 
   
   //update,stopbtn wil push these details into an array and store in localstorage
-    const entry=               { client : currentTimer.clientName,
+    const entry=               { id : Date.now(),
+                                client : currentTimer.clientName,
                                  task : currentTimer.task,
                                  start : currentTimer.startISO,
                                  end   : endISO,
@@ -243,22 +244,38 @@ setButtons(false);
       const tr = document.createElement("tr");
       tr.innerHTML = `
                        <td>${e.client}</td>
-                        <td>${e.task}</td>
-                         <td>${new Date(e.start).toLocaleString()}</td>
-                          <td>${new Date(e.end).toLocaleString()}</td>
-                           <td>${hoursNum.toFixed(2)}</td>
-                            <td>$${rateNum.toFixed(2)}</td>
-                             <td>$${total}</td>
-                             `;
+                       <td>${e.task}</td>
+                       <td>${new Date(e.start).toLocaleString()}</td>
+                       <td>${new Date(e.end).toLocaleString()}</td>
+                       <td>${hoursNum.toFixed(2)}</td>
+                       <td>$${rateNum.toFixed(2)}</td>
+                       <td>$${total}</td>
+                       <td><button class="delete-task-btn" data-id="${e.id}">Delete</button></td>      `;
+
      
     tbody.appendChild(tr);
 
+
+    document.querySelectorAll(".delete-task-btn").forEach(btn =>{
+      btn.addEventListener("click",function (){
+        const id = this.getAttribute("data-id");
+        timeEntries = timeEntries.filter(e=> e.id != id);
+        localStorage.setItem("timeEntries", JSON.stringify(timeEntries));
+        renderTimeEntries();
+
+      })
+     })
 
     })
    
 
   }
 })
+
+
+
+
+
 
 
 
