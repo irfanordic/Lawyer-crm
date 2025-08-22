@@ -37,7 +37,7 @@ populateClientFilter();
     const rate = document.getElementById("rate").value;
     const caseType = document.getElementById("caseType").value;
 
-    const newClient = {name, rate, caseType};
+    const newClient = {name, rate, caseType };
 
     clients.push(newClient);
     saveClients();
@@ -49,7 +49,7 @@ populateClientFilter();
 
 function renderClients(){
   const tbody = document.querySelector("#clientTable tbody");
-    tbody.innerHTML= " ";
+    tbody.innerHTML= "";
 
 
     //adding datas to the table 
@@ -60,6 +60,7 @@ function renderClients(){
         <td>${client.name}</td>
         <td>${client.caseType}</td>
         <td>$${client.rate}</td>
+        
         <td> <button class="delete-btn" data-index="${index}">Delete</button> </td>
       `;
         tbody.appendChild(row);
@@ -95,7 +96,12 @@ function renderClients(){
           populateClientFilter();
         })
       })
+
+     
+
+     
 }   
+
 
 
 //Timer Functions 
@@ -318,6 +324,36 @@ filterSelect.addEventListener("change",(e)=>{
   localStorage.setItem("currentFilter", JSON.stringify(currentFilter));
   renderTimeEntries();
 })
+
+//export csv option
+function exportTaskHistoryToCSV(){
+  if(timeEntries.length === 0){
+    alert("Theres no data to download");
+    return;
+  }
+   let csvContent = "Client,Task,Start time,End time,Hours,Rate,Total\n";
+
+   timeEntries.forEach(e=>{
+    const client = clients.find(c => c.name === e.client);
+    const rateNum = client? parseFloat(client.rate):0;
+    const hoursNum = typeof e.hours === "number"?e.hours : parseFloat(e.hours);
+    const total  = (hoursNum*rateNum).toFixed(2);
+
+    csvContent += `"${e.client}","${e.task}","${new Date(e.start).toLocaleString()}","${new Date(e.end).toLocaleString()}",${hoursNum.toFixed(2)},${rateNum.toFixed(2)},${total}\n`;
+  }) 
+
+
+
+   const blob = new Blob([csvContent],{ type : "text/csv"});
+   const url = URL.createObjectURL(blob);
+   const a = document.createElement("a");
+   a.href = url;
+   a.download = `task_history_${new Date().toISOString().slice(0,10)}.csv`;
+   a.click();
+   URL.revokeObjectURL(url);
+}
+
+document.getElementById("exportCSV").addEventListener("click", exportTaskHistoryToCSV); 
 })
 
 
