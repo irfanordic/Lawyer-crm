@@ -1,292 +1,219 @@
-    * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+
+body {
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: #f3f4f6; 
+  color: #111827; 
+  line-height: 1.5;
+}
+.main-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr; /* left smaller, right larger */
+  gap: 20px;
+  padding: 20px;
+}
+
+/* Left column cards */
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Right column cards */
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+h1, h2 {
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+h1 {
+  font-size: 1.8rem;
+  text-align: center;
+  margin: 20px 0;
+}
+
+h2 {
+  font-size: 1.4rem;
+}
+
+
 nav {
-    background-color: #2c3e50;
-    color: white;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  background-color: #1f2937; 
+  color: white;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 nav .logo {
-    font-size: 20px;
-    font-weight: bold;
+  font-size: 20px;
+  font-weight: bold;
 }
 
 nav ul {
-    display: flex;
-    list-style: none;
+  display: flex;
+  list-style: none;
 }
 
 nav ul li {
-    margin-left: 20px;
+  margin-left: 20px;
 }
 
 nav ul li a {
-    color: white;
-    text-decoration: none;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+nav ul li a:hover {
+  color: #60a5fa; 
 }
 
 
 footer {
-    background-color: #2c3e50;
-    color: white;
-    text-align: center;
-    padding: 10px;
+  background-color: #1f2937;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  margin-top: 40px;
 }
 
-.add-client, .client-list{
-    background: white;
-    padding: 20px;
-    margin: 20px auto;
-    max-width: 600px;
-    border-radius: 8px;
-    box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
-    font-family: "Segoe UI", Tahoma, sans-serif;
-}
 
-.add-client h2, .client-list h2{
-    margin-bottom: 15px;
-}
-
-.add-client label{
-    display: block;
-    margin: 8px 0 4px;
-}
-
-.add-client input, .add-client select{
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-.add-client button{
-    margin-top: 10px;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    background: #2563eb;
-    color: white;
-    cursor: pointer;
-}
-.add-client button:hover{
-    background: #1d4ed8;
-}
-
-.client-list {
-  max-height: 450px;
+.card {
+  max-height: 600px;         
   overflow-y: auto;
-  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 20px;
+ 
+  background: white;
+  margin: 20px auto;
+  max-width: 800px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+
+label {
+  display: block;
+  margin: 10px 0 6px;
+  font-weight: 500;
+}
+
+input, select {
+  width: 100%;
   padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.3s ease;
 }
 
+input:focus, select:focus {
+  border-color: #2563eb; 
+  outline: none;
+}
 
-.client-list table{
+button {
+  margin: 10px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+  transform: scale(1.02);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+}
+.btn-primary:hover { background: #1d4ed8; }
+
+.btn-danger {
+  background: #dc2626;
+  color: white;
+}
+.btn-danger:hover { background: #b91c1c; }
+
+
+table {
  
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  
 }
 
-.client-list th, .client-list td{
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
 }
 
-.client-list th{
-    background: #f4f4f4;
-}
-
-.delete-btn{
-    background: #dc2626;
-    color: white;
-    border: none;
-    padding: 5px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.delete-btn:hover{
-    background: #b91c1c;
+th {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
 }
 
 
-.timer-card {
-    background: #ffffff;        
-    border-radius: 12px;        
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
-    margin: 30px auto;
-    max-width: 500px;         
-    padding: 20px;
-    font-family: "Segoe UI", Tahoma, sans-serif;
-  }
-  
+#elapsed {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #111827;
+  background: #f3f4f6;
+  padding: 8px 14px;
+  border-radius: 8px;
+  min-width: 120px;
+  text-align: center;
+  font-family: "Courier New", monospace;
+  margin-left: auto;
+}
 
-  .timer-card h2 {
-    margin-bottom: 15px;
-    font-size: 1.5rem;
-    color: #333;
-    
-  }
-  
 
-  .timer-row {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 16px;
-  }
-  
-  .timer-row label {
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: #444;
-    margin-left: 20px ;
-    
-  
+.timer-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
 
-  }    
 
-  
-  .timer-row input,
-  .timer-row select {
-   padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: border-color 0.3s ease;
-  }
-  
-  .timer-row input:focus,
-  .timer-row select:focus {
-    border-color: #007bff;
-    outline: none;
-  }
-  
-  
-  .timer-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-  }
-  
-  
-  #startBtn,
-  #stopBtn {
-    display: inline-block;
-    
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.1s ease;
-  }
-  
-  #startBtn {
-    margin-left: 20px;
-    background: #28a745;
-    color: white;
-  }
-  
-  #startBtn:hover {
-    background: #218838;
-    transform: scale(1.03);
-  }
-  
-  #stopBtn {
-    background: #dc3545;
-    color: white;
-  }
-  
-  #stopBtn:hover {
-    background: #c82333;
-    transform: scale(1.03);
-  }
-  
-  
-  #elapsed {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #333;
-    background: #f8f9fa;
-    padding: 6px 12px;
-    border-radius: 8px;
-    min-width: 100px;
-    text-align: center;
-    font-family: "Courier New", monospace;
-  }
-  
-  
-  .hint {
-    margin-top: 12px;
-    font-size: 0.85rem;
-    color: #777;
-    text-align: center;
-  }
-  
-  .task-history {
-    max-height: 500px;
-    overflow: auto;
-    background: #ffffff;
-    
-    padding: 20px;
-    margin: 20px auto;
-    max-width: 800px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    font-family: "Segoe UI", Tahoma, sans-serif;
-  }
- 
-   
-  .task-history h2 {
-    margin-bottom: 15px;
-  }
-  
-  #currentFilter {
-    padding: 8px 12px;
-    font-size: 14px;
-    margin-bottom: 5px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: #fff;
-    color: #333;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  }
-  #currentFilter:hover {
-    outline: none;
-    border-color: #8cb4df;   /* highlight when selected */
-    box-shadow: 0 0 5px rgba(0,123,255,0.5);
-  }
+#currentFilter {
+  padding: 8px 12px;
+  font-size: 14px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
 
-  .task-history table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .task-history th, .task-history td {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-  }
-  
-  .task-history th {
-    background: #f4f4f4;
-  }
-  
-  .delete-task-btn{
-    background: #dc2626;
-    color: white;
-    border: none;
-    padding: 5px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-    
+#currentFilter:hover {
+  border-color: #60a5fa;
+  box-shadow: 0 0 5px rgba(0,123,255,0.4);
+}

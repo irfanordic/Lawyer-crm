@@ -23,8 +23,9 @@
 
     <main>
         <h1>Welcome to CrM</h1>
-
-        <section class="add-client">
+        <div class="main-container">
+            <div class="left-column">
+        <section class="card">
             <h2>Add client</h2>
             <form id="clientForm">
                 <label for="name">Name</label>
@@ -45,24 +46,8 @@
                 </form>
             </section>
 
-            <section class="client-list">
-                <h2>Clients</h2>
-                <table id="clientTable">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Case type</th>
-                        <th>Rate</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                    <tbody></tbody>
-                </table>
-         </section>
 
-       
-
-         <section class="timer-card">
+         <section class="card">
             <h2>Track time</h2>
             <div class="timer-row">
                 <label for="timerClientSelect">Client</label>
@@ -80,12 +65,36 @@
                 <button id="startBtn" class="btn-primary">Start</button>
                 <button id="stopBtn" class="btn-danger">Stop</button> 
                 <span class="elapsed" id="elapsed">00:00:00</span>
-                <p class="hint">Timer creates a datas like date ,start ,end ,task ,hours ,hourly rate ,total </p>
+                <p class="hint"> </p>
             </div>
          </section>
+           
+        </div>
+    
 
 
-         <section class="task-history">
+
+<div class="right-column">
+            <section class="card">
+                <h2>Clients</h2>
+                <table id="clientTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Case type</th>
+                        <th>Rate</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                    <tbody></tbody>
+                </table>
+         </section>
+
+       
+
+        
+
+         <section class="card">
             <h2>Task history</h2>
             <label for="currentFilter"></label>
             <select  id="currentFilter">
@@ -109,6 +118,8 @@
                 <tbody></tbody>
             </table>
          </section>
+        </div>
+        </div> 
 
 
     </main>

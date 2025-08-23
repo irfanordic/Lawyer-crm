@@ -325,7 +325,7 @@ filterSelect.addEventListener("change",(e)=>{
   renderTimeEntries();
 })
 
-//export csv option
+//export csv option 
 function exportTaskHistoryToCSV(){
   if(timeEntries.length === 0){
     alert("Theres no data to download");
