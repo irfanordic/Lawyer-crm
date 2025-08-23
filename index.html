@@ -34,13 +34,17 @@
                 <label for="rate">Hourly rate (USD)</label>
                 <input type="number" id="rate" placeholder="eg:150" min="0" required>
                 
-                <label for="caseType">Case type</label>
-                <select  id="caseType" required>
+                <label for="caseTypeMain">Case type</label>
+                <select  id="caseTypeMain" required>
                     <option value="">-- Select --</option>
-                    <option value="Mental Health Law">Mental Health Law</option>
-                    <option value="Estate planning">Estate planning</option>
-                    <option value="Other">Other</option>
+                    <option value="State">State Clients</option>
+                    <option value="Justice bridge">Justice Bridge</option>
+                    <option value="Private">Private Clients</option>
                 </select>
+                 <label for="subType"> Sub domain</label>
+                 <select id="subType">
+                    <option value="">--Select a sub domain--</option>
+                 </select>
 
                 <button type="submit">Add client</button>
                 </form>
@@ -82,6 +86,7 @@
                     <tr>
                         <th>Name</th>
                         <th>Case type</th>
+                        <th>Sub type</th>
                         <th>Rate</th>
                         <th>Actions</th>
                     </tr>
@@ -106,6 +111,8 @@
                 <thead>
                     <tr>
                         <th>Client</th>
+                        <th>Case type</th>
+                        <th>Sub type</th>
                         <th>Tasks</th>
                         <th>Start</th>
                         <th>End</th>

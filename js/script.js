@@ -18,6 +18,14 @@ console.log("jsfile is connected to index html");
 let clients = [];
 let timeEntries = JSON.parse(localStorage.getItem("timeEntries")) || [];
 
+
+//this is the subType assigning part(change subType values here)
+const subTypeOption = {
+  "State" : ["Guardianship", "Criminal defense", "Civil commitment"],
+  "Justice bridge" : ["Estates & Trusts", "Other", "Probate"],
+  "Private" : ["Estates & Trusts", "General practice", "Probate"]
+};
+
 document.addEventListener("DOMContentLoaded", function() {
   
   //calling these two to load when refreshed 
@@ -28,16 +36,29 @@ renderTimeEntries();
 populateClientFilter();
 
     const form = document.getElementById("clientForm");
-    
+     
+    document.getElementById("caseTypeMain").onchange = function(){
+      const caseType = this.value;
+      const subTypeSelect = document.getElementById("subType");
+
+      subTypeSelect.innerHTML = `<option value="">-- Select Sub Type --</option>`;
+
+      if(subTypeOption[caseType]){
+        subTypeOption[caseType].forEach(sub =>{
+          subTypeSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
+        })
+      }
+    }
     
     form.addEventListener("submit", function(e){
     e.preventDefault();
 
     const name = document.getElementById("name").value;
     const rate = document.getElementById("rate").value;
-    const caseType = document.getElementById("caseType").value;
+    const caseTypeMain = document.getElementById("caseTypeMain").value;
+    const caseTypeSub = document.getElementById("subType").value;
 
-    const newClient = {name, rate, caseType };
+    const newClient = {name, rate, caseTypeMain, caseTypeSub};
 
     clients.push(newClient);
     saveClients();
@@ -58,7 +79,8 @@ function renderClients(){
     
         row.innerHTML= `
         <td>${client.name}</td>
-        <td>${client.caseType}</td>
+        <td>${client.caseTypeMain}</td>
+        <td>${client.caseTypeSub}</td>
         <td>$${client.rate}</td>
         
         <td> <button class="delete-btn" data-index="${index}">Delete</button> </td>
@@ -203,13 +225,15 @@ if(!confirmStop) return;
 
 
 
-
+  const clientObj = clients.find(c => c.name === currentTimer.clientName);
   
 
   
   //update,stopbtn wil push these details into an array and store in localstorage
     const entry=               { id : Date.now(),
                                 client : currentTimer.clientName,
+                                caseTypeMain : clientObj? clientObj.caseTypeMain : "",
+                                caseTypeSub : clientObj? clientObj.caseTypeSub : "",
                                  task : currentTimer.task,
                                  start : currentTimer.startISO,
                                  end   : endISO,
@@ -254,9 +278,13 @@ setButtons(false);
 
       const total = (hoursNum * rateNum).toFixed(2);
 
+      
+
       const tr = document.createElement("tr");
       tr.innerHTML = `
                        <td>${e.client}</td>
+                       <td>${e.caseTypeMain}</td>
+                       <td>${e.caseTypeSub }</td>
                        <td>${e.task}</td>
                        <td>${new Date(e.start).toLocaleString()}</td>
                        <td>${new Date(e.end).toLocaleString()}</td>
@@ -327,19 +355,27 @@ filterSelect.addEventListener("change",(e)=>{
 
 //export csv option 
 function exportTaskHistoryToCSV(){
-  if(timeEntries.length === 0){
+   
+  let entries = [...timeEntries];
+
+
+  if(entries.length === 0){
     alert("Theres no data to download");
     return;
   }
-   let csvContent = "Client,Task,Start time,End time,Hours,Rate,Total\n";
+    if(currentFilter !== "All Clients"){
+      entries = entries.filter(e => e.client === currentFilter);
+    }
+    
+   let csvContent = "Client,Case type,Sub case,Task,Start time,End time,Hours,Rate,Total\n";
 
-   timeEntries.forEach(e=>{
+   entries.forEach(e=>{
     const client = clients.find(c => c.name === e.client);
     const rateNum = client? parseFloat(client.rate):0;
     const hoursNum = typeof e.hours === "number"?e.hours : parseFloat(e.hours);
     const total  = (hoursNum*rateNum).toFixed(2);
 
-    csvContent += `"${e.client}","${e.task}","${new Date(e.start).toLocaleString()}","${new Date(e.end).toLocaleString()}",${hoursNum.toFixed(2)},${rateNum.toFixed(2)},${total}\n`;
+    csvContent += `"${e.client}","${client? client.caseTypeMain : ""}","${client? client.caseTypeSub : ""}","${e.task}","${new Date(e.start).toLocaleString()}","${new Date(e.end).toLocaleString()}",${hoursNum.toFixed(2)},${rateNum.toFixed(2)},${total}\n`;
   }) 
 
 
@@ -347,8 +383,11 @@ function exportTaskHistoryToCSV(){
    const blob = new Blob([csvContent],{ type : "text/csv"});
    const url = URL.createObjectURL(blob);
    const a = document.createElement("a");
+   
+   const download = currentFilter === "All Clients"
+   ? `task_history_${new Date().toISOString().slice(0,10)}.csv` : `task_history_${currentFilter}_${new Date().toISOString().slice(0,10)}.csv` ;
    a.href = url;
-   a.download = `task_history_${new Date().toISOString().slice(0,10)}.csv`;
+   a.download = download;
    a.click();
    URL.revokeObjectURL(url);
 }
