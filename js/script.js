@@ -297,20 +297,17 @@ setButtons(false);
     tbody.appendChild(tr);
 
 
-    document.querySelectorAll(".delete-task-btn").forEach(btn =>{
-      btn.addEventListener("click",function (){
-        const id = this.getAttribute("data-id");
-        timeEntries = timeEntries.filter(e=> e.id != id);
+    tbody.onclick = function(e) {
+      if (e.target.classList.contains("delete-task-btn")) {
+        const id = e.target.getAttribute("data-id");
+        timeEntries = timeEntries.filter(entry => entry.id != id);
         localStorage.setItem("timeEntries", JSON.stringify(timeEntries));
         renderTimeEntries();
-
-      })
-     })
-
-    })
-   
-
+      
+    }
   }
+    })
+  };
 //function to populating the filter in task history sheet
 function populateClientFilter(){
   const filterSelect = document.getElementById("currentFilter");
@@ -349,7 +346,7 @@ function populateClientFilter(){
 const filterSelect = document.getElementById("currentFilter");
 filterSelect.addEventListener("change",(e)=>{
   currentFilter = e.target.value;
-  localStorage.setItem("currentFilter", JSON.stringify(currentFilter));
+  localStorage.setItem("currentFilter", currentFilter);
   renderTimeEntries();
 })
 
@@ -396,9 +393,7 @@ document.getElementById("exportCSV").addEventListener("click", exportTaskHistory
 })
 
 
-
-
-
+  
 
 
 
