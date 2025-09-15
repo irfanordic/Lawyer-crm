@@ -1,25 +1,47 @@
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } 
+from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-//adding local storage , ssaving it.
-let currentFilter = localStorage.getItem("currentFilter") || "All Clients";
-function saveClients(){
-  localStorage.setItem("clients" , JSON.stringify(clients));
-}
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
-//localstorage.restoring it 
-function loadClients(){
-  const stored = localStorage.getItem("clients");
-  if (stored){
-    clients = JSON.parse(stored);
-  }
-}
+const firebaseConfig = {
+    apiKey: "AIzaSyA3EN3BjcAxOjpeOsLeBaTpU-cD5i1EOHs",
+    authDomain: "lawyer-crm-29e37.firebaseapp.com",
+    projectId: "lawyer-crm-29e37",
+    storageBucket: "lawyer-crm-29e37.firebasestorage.app",
+    messagingSenderId: "943306998744",
+    appId: "1:943306998744:web:34ae81c079e1cae73128ad"
+  };
 
-console.log("jsfile is connected to index html");
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+
 
 let clients = [];
 let timeEntries = JSON.parse(localStorage.getItem("timeEntries")) || [];
+let currentFilter = localStorage.getItem("currentFilter") || "All Clients";
 
 
-//this is the subType assigning part(change subType values here)
+//localstorage.restoring it 
+async function loadClients(){   
+  clients = [];
+  const querySnapshot = await getDocs(collection(db, "clients"));
+  querySnapshot.forEach((doc)=>{
+    clients.push({id: doc.id, ...doc.data()});
+  })
+ renderClients();
+}
+
+
+
+
+
+
+
+// ---- Subtype options ----
 const subTypeOption = {
   "State" : ["Guardianship", "Criminal defense", "Civil commitment"],
   "Justice bridge" : ["Estates & Trusts", "Other", "Probate"],
@@ -30,17 +52,14 @@ document.addEventListener("DOMContentLoaded", function() {
   
   //calling these two to load when refreshed 
 loadClients();
-
-renderClients();
 renderTimeEntries();
 populateClientFilter();
 
-    const form = document.getElementById("clientForm");
+    
      
     document.getElementById("caseTypeMain").onchange = function(){
       const caseType = this.value;
       const subTypeSelect = document.getElementById("subType");
-
       subTypeSelect.innerHTML = `<option value="">-- Select Sub Type --</option>`;
 
       if(subTypeOption[caseType]){
@@ -49,8 +68,8 @@ populateClientFilter();
         })
       }
     }
-    
-    form.addEventListener("submit", function(e){
+    const form = document.getElementById("clientForm");
+    form.addEventListener("submit", async function(e){
     e.preventDefault();
 
     const name = document.getElementById("name").value;
@@ -59,9 +78,16 @@ populateClientFilter();
     const caseTypeSub = document.getElementById("subType").value;
 
     const newClient = {name, rate, caseTypeMain, caseTypeSub};
-
-    clients.push(newClient);
-    saveClients();
+    
+    try{
+      const docRef = await addDoc(collection(db, "clients"), newClient);
+      console.log("new client has been added with id: ", docRef.id);
+      clients.push({id: docRef.id, ...newClient});
+    }catch(error){
+      console.log("there has been some error while adding the client", error)
+    }
+    
+   
 
     renderClients();
 
@@ -83,7 +109,7 @@ function renderClients(){
         <td>${client.caseTypeSub}</td>
         <td>$${client.rate}</td>
         
-        <td> <button class="delete-btn" data-index="${index}">Delete</button> </td>
+        <td> <button class="delete-btn" data-id="${client.id}">Delete</button> </td>
       `;
         tbody.appendChild(row);
 
@@ -108,13 +134,11 @@ function renderClients(){
       
       //adding a delete function 
       document.querySelectorAll(".delete-btn").forEach(button => {
-        button.addEventListener("click", function () {
-          const idx = parseInt(this.getAttribute("data-index"));
-          clients.splice(idx, 1);
-          saveClients();
-
-          renderClients(tbody);
-
+        button.addEventListener("click", async function () {
+          const id = this.getAttribute("data-id");
+          await deleteDoc(doc(db,"clients", id));
+          clients = clients.filter(c => c.id !== id);
+          renderClients();
           populateClientFilter();
         })
       })
@@ -207,7 +231,7 @@ startBtn.addEventListener("click", () => {
 
 })
 //stopBtn
-stopBtn.addEventListener("click", () => {
+stopBtn.addEventListener("click", async() => {
   if(!currentTimer) return;
 //confirmation  for stopbtn
 const confirmStop = confirm(`do you want to stop this session for ${currentTimer.clientName}?`);
@@ -230,7 +254,7 @@ if(!confirmStop) return;
 
   
   //update,stopbtn wil push these details into an array and store in localstorage
-    const entry=               { id : Date.now(),
+    const entry=               { 
                                 client : currentTimer.clientName,
                                 caseTypeMain : clientObj? clientObj.caseTypeMain : "",
                                 caseTypeSub : clientObj? clientObj.caseTypeSub : "",
@@ -238,11 +262,12 @@ if(!confirmStop) return;
                                  start : currentTimer.startISO,
                                  end   : endISO,
                                  hours : parseFloat(hours.toFixed(2))}
-
-                                 
+;
+  const docRef =    await addDoc(collection(db, "timeEntries"), entry); 
+  entry.id = docRef.id;                     
   timeEntries.push(entry);
+  localStorage.setItem("timeEntries", JSON.stringify(timeEntries));
 
-localStorage.setItem("timeEntries", JSON.stringify(timeEntries));
 
 renderTimeEntries();
 
@@ -297,11 +322,12 @@ setButtons(false);
     tbody.appendChild(tr);
 
 
-    tbody.onclick = function(e) {
+    tbody.onclick = async function(e) {
       if (e.target.classList.contains("delete-task-btn")) {
         const id = e.target.getAttribute("data-id");
         timeEntries = timeEntries.filter(entry => entry.id != id);
         localStorage.setItem("timeEntries", JSON.stringify(timeEntries));
+        await deleteDoc(doc(db, "timeEntries", id))
         renderTimeEntries();
       
     }
