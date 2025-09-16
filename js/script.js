@@ -5,6 +5,8 @@ from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } 
 from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
+
+
 const firebaseConfig = {
     apiKey: "AIzaSyA3EN3BjcAxOjpeOsLeBaTpU-cD5i1EOHs",
     authDomain: "lawyer-crm-29e37.firebaseapp.com",
@@ -18,27 +20,59 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+//----signup authentification field--- 
+
+ document.getElementById("signupBtn").addEventListener("click",()=>{
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  createUserWithEmailAndPassword(auth, email, password)
+  .then(()=> alert("signup success"))
+  .catch(err => alert("signup failed! try again"));
+ })
 
 
+ document.getElementById("loginBtn").addEventListener("click",()=>{
+   const email = document.getElementById("email").value;
+   const password = document.getElementById("password").value;
+ 
+   signInWithEmailAndPassword(auth, email, password)
+   .then(()=> alert("login success"))
+   .catch(err => alert("login failed !"));
+  })
+ 
+  document.getElementById("logoutBtn").addEventListener("click",()=>{
+  signOut(auth)
+  })
+    
+let timeEntries = [];
 let clients = [];
-let timeEntries = JSON.parse(localStorage.getItem("timeEntries")) || [];
 let currentFilter = localStorage.getItem("currentFilter") || "All Clients";
 
 
-//localstorage.restoring it 
+//firebase fetching data from firestore for clients ands also timeEntries 
 async function loadClients(){   
   clients = [];
-  const querySnapshot = await getDocs(collection(db, "clients"));
+   const user = auth.currentUser;
+  const querySnapshot = await getDocs(collection(db, `users/${auth.currentUser.uid}/clients`));
   querySnapshot.forEach((doc)=>{
     clients.push({id: doc.id, ...doc.data()});
   })
  renderClients();
 }
 
+async function loadTimeEntries(){
+  timeEntries = [];
+  const user = auth.currentUser;
+  const querySnapshot = await getDocs(collection(db, `users/${auth.currentUser.uid}/timeEntries`))
+  querySnapshot.forEach((docSnap)=>{
+    timeEntries.push({id: docSnap.id, ...docSnap.data()});
+  })
+  renderTimeEntries();
+}
 
 
-
-
+//------------------------------------------------------------------------------
 
 
 // ---- Subtype options ----
@@ -48,52 +82,8 @@ const subTypeOption = {
   "Private" : ["Estates & Trusts", "General practice", "Probate"]
 };
 
-document.addEventListener("DOMContentLoaded", function() {
-  
-  //calling these two to load when refreshed 
-loadClients();
-renderTimeEntries();
-populateClientFilter();
 
-    
-     
-    document.getElementById("caseTypeMain").onchange = function(){
-      const caseType = this.value;
-      const subTypeSelect = document.getElementById("subType");
-      subTypeSelect.innerHTML = `<option value="">-- Select Sub Type --</option>`;
-
-      if(subTypeOption[caseType]){
-        subTypeOption[caseType].forEach(sub =>{
-          subTypeSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
-        })
-      }
-    }
-    const form = document.getElementById("clientForm");
-    form.addEventListener("submit", async function(e){
-    e.preventDefault();
-
-    const name = document.getElementById("name").value;
-    const rate = document.getElementById("rate").value;
-    const caseTypeMain = document.getElementById("caseTypeMain").value;
-    const caseTypeSub = document.getElementById("subType").value;
-
-    const newClient = {name, rate, caseTypeMain, caseTypeSub};
-    
-    try{
-      const docRef = await addDoc(collection(db, "clients"), newClient);
-      console.log("new client has been added with id: ", docRef.id);
-      clients.push({id: docRef.id, ...newClient});
-    }catch(error){
-      console.log("there has been some error while adding the client", error)
-    }
-    
-   
-
-    renderClients();
-
-    e.target.reset();
-})
-
+//---- unction for client table data -----
 function renderClients(){
   const tbody = document.querySelector("#clientTable tbody");
     tbody.innerHTML= "";
@@ -124,8 +114,8 @@ function renderClients(){
 
       clients.forEach(client => {
         const option= document.createElement("option");
-        option.value = client.name;
-        option.textContent = client.name;
+        option.value = client.id;
+        option.textContent = `${client.name} (${client.caseTypeMain})`;
         clientSelect.appendChild(option);
 
       });
@@ -136,17 +126,111 @@ function renderClients(){
       document.querySelectorAll(".delete-btn").forEach(button => {
         button.addEventListener("click", async function () {
           const id = this.getAttribute("data-id");
-          await deleteDoc(doc(db,"clients", id));
+          await deleteDoc(doc(db, `users/${auth.currentUser.uid}/clients`, id));
           clients = clients.filter(c => c.id !== id);
           renderClients();
           populateClientFilter();
         })
       })
+    }
+    
+    
+      // function for rendering timeEntry data 
+         function renderTimeEntries(){
+              const tbody = document.querySelector("#taskTable tbody");
+              if(!tbody)return;
+              tbody.innerHTML = "";
+             
+               let entries = [...timeEntries];
+               if(currentFilter != "All Clients"){
+               entries = entries.filter(e => e.clientId === currentFilter);
+               }
+          
+               entries.sort((a, b)=> new Date(b.end) - new Date(a.end));
+          
+              entries.forEach((e) => {
+                const client = clients.find(c=>c.id === e.clientId);
+                const rateNum = client? parseFloat(client.rate): 0;
+                const hoursNum = typeof e.hours ==="number"?e.hours : parseFloat(e.hours);
+          
+                const total = (hoursNum * rateNum).toFixed(2);
+          
+                
+          
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                                 <td>${e.client}</td>
+                                 <td>${e.caseTypeMain}</td>
+                                 <td>${e.caseTypeSub }</td>
+                                 <td>${e.task}</td>
+                                 <td>${new Date(e.start).toLocaleString()}</td>
+                                 <td>${new Date(e.end).toLocaleString()}</td>
+                                 <td>${hoursNum.toFixed(2)}</td>
+                                 <td>$${rateNum.toFixed(2)}</td>
+                                 <td>$${total}</td>
+                                 <td><button class="delete-task-btn" data-id="${e.id}">Delete</button></td>      `;
+          
+               
+              tbody.appendChild(tr);
+          
+          
+              tbody.onclick = async function(e) {
+                if (e.target.classList.contains("delete-task-btn")) {
+                  const id = e.target.getAttribute("data-id");
+                  timeEntries = timeEntries.filter(entry => entry.id != id);
+                  await deleteDoc(doc(db, `users/${auth.currentUser.uid}/timeEntries`, id))
+                  renderTimeEntries();
+                
+              }
+            }
+              })
+            };
+         
 
-     
+document.addEventListener("DOMContentLoaded", async function() {
+  
+  //calling these two to load when refreshed 
 
+
+    
      
-}   
+    document.getElementById("caseTypeMain").onchange = function(){
+      const caseType = this.value;
+      const subTypeSelect = document.getElementById("subType");
+      subTypeSelect.innerHTML = `<option value="">-- Select Sub Type --</option>`;
+
+      if(subTypeOption[caseType]){
+        subTypeOption[caseType].forEach(sub =>{
+          subTypeSelect.innerHTML += `<option value="${sub}">${sub}</option>`;
+        })
+      }
+    }
+    const form = document.getElementById("clientForm");
+    form.addEventListener("submit", async function(e){
+    e.preventDefault();
+
+    const name = document.getElementById("name").value;
+    const rate = document.getElementById("rate").value;
+    const caseTypeMain = document.getElementById("caseTypeMain").value;
+    const caseTypeSub = document.getElementById("subType").value;
+
+    const newClient = {name, rate, caseTypeMain, caseTypeSub};
+    
+    try{
+      const docRef = await addDoc(collection(db, `users/${auth.currentUser.uid}/clients`), newClient);
+      console.log("new client has been added with id: ", docRef.id);
+      clients.push({id: docRef.id, ...newClient});
+    }catch(error){
+      console.log("there has been some error while adding the client", error)
+    }
+    
+   
+
+    renderClients();
+
+    e.target.reset();
+})
+
 
 
 
@@ -205,10 +289,10 @@ if(currentTimer){
 }
 //startBtn
 startBtn.addEventListener("click", () => {
-  const clientName = document.getElementById("timerClientSelect").value;
+  const clientId = document.getElementById("timerClientSelect").value;
   const task = document.getElementById("timerTask").value;
 
-  if(!clientName){
+  if(!clientId){
     alert("please select a client!"); return;
   } 
 
@@ -216,12 +300,19 @@ startBtn.addEventListener("click", () => {
     alert("Write a Description"); return;
   }
 //confirmation for startbtn
-  const confirmStart = confirm(`Do you want to start this session for ${clientName}?`);
+  const confirmStart = confirm(`Do you want to start this session for ${clientId}?`);
   if (!confirmStart) {
       return; 
   }
 
-  currentTimer = {clientName , task, startISO: new Date().toISOString()};
+   const clientObj = clients.find(c => c.id === clientId);
+
+  currentTimer = { clientId,
+    clientName: clientObj.name,
+    caseTypeMain: clientObj.caseTypeMain,
+    caseTypeSub: clientObj.caseTypeSub,
+    task,
+    startISO: new Date().toISOString()};
 
   localStorage.setItem("currentTimer", JSON.stringify(currentTimer));
   setButtons(true);
@@ -241,32 +332,23 @@ if(!confirmStop) return;
   const start = new Date(currentTimer.startISO).getTime();
   const end = new Date(endISO).getTime();
   const hours = (end - start)/3600000;
-
- 
-
-
-
-
-
-
-  const clientObj = clients.find(c => c.name === currentTimer.clientName);
   
 
   
   //update,stopbtn wil push these details into an array and store in localstorage
-    const entry=               { 
+    const entry=               { clientId: currentTimer.clientId,
                                 client : currentTimer.clientName,
-                                caseTypeMain : clientObj? clientObj.caseTypeMain : "",
-                                caseTypeSub : clientObj? clientObj.caseTypeSub : "",
+                                caseTypeMain : currentTimer.caseTypeMain ,
+                                caseTypeSub : currentTimer.caseTypeSub ,
                                  task : currentTimer.task,
                                  start : currentTimer.startISO,
                                  end   : endISO,
                                  hours : parseFloat(hours.toFixed(2))}
 ;
-  const docRef =    await addDoc(collection(db, "timeEntries"), entry); 
+  const docRef =    await addDoc(collection(db, `users/${auth.currentUser.uid}/timeEntries`), entry); 
   entry.id = docRef.id;                     
   timeEntries.push(entry);
-  localStorage.setItem("timeEntries", JSON.stringify(timeEntries));
+ 
 
 
 renderTimeEntries();
@@ -283,98 +365,8 @@ setButtons(false);
   
 
 
-  //funtion to display the history on the table 
-  function renderTimeEntries(){
-    const tbody = document.querySelector("#taskTable tbody");
-    if(!tbody)return;
-    tbody.innerHTML = "";
-   
-     let entries = [...timeEntries];
-     if(currentFilter != "All Clients"){
-     entries = entries.filter(e => e.client === currentFilter);
-     }
-
-     entries.sort((a, b)=> new Date(b.end) - new Date(a.end));
-
-    entries.forEach((e) => {
-      const client = clients.find(c=>c.name === e.client);
-      const rateNum = client? parseFloat(client.rate): 0;
-      const hoursNum = typeof e.hours ==="number"?e.hours : parseFloat(e.hours);
-
-      const total = (hoursNum * rateNum).toFixed(2);
-
-      
-
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-                       <td>${e.client}</td>
-                       <td>${e.caseTypeMain}</td>
-                       <td>${e.caseTypeSub }</td>
-                       <td>${e.task}</td>
-                       <td>${new Date(e.start).toLocaleString()}</td>
-                       <td>${new Date(e.end).toLocaleString()}</td>
-                       <td>${hoursNum.toFixed(2)}</td>
-                       <td>$${rateNum.toFixed(2)}</td>
-                       <td>$${total}</td>
-                       <td><button class="delete-task-btn" data-id="${e.id}">Delete</button></td>      `;
-
-     
-    tbody.appendChild(tr);
-
-
-    tbody.onclick = async function(e) {
-      if (e.target.classList.contains("delete-task-btn")) {
-        const id = e.target.getAttribute("data-id");
-        timeEntries = timeEntries.filter(entry => entry.id != id);
-        localStorage.setItem("timeEntries", JSON.stringify(timeEntries));
-        await deleteDoc(doc(db, "timeEntries", id))
-        renderTimeEntries();
-      
-    }
-  }
-    })
-  };
-//function to populating the filter in task history sheet
-function populateClientFilter(){
-  const filterSelect = document.getElementById("currentFilter");
-  if(!filterSelect) return;
-   
-  filterSelect.innerHTML= "";
-
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "All Clients";
-  defaultOption.textContent = "All Clients";
-  filterSelect.appendChild(defaultOption);
-
-
-   
-   clients.forEach(client =>{
-
-    const option = document.createElement("option");
-    option.value = client.name;
-    option.textContent = client.name;
-    filterSelect.appendChild(option);
-
-    filterSelect.value = currentFilter;
-       
-
-   })
-
-   filterSelect.value = currentFilter;
-   
-
-
-
-
-}
-
  
-const filterSelect = document.getElementById("currentFilter");
-filterSelect.addEventListener("change",(e)=>{
-  currentFilter = e.target.value;
-  localStorage.setItem("currentFilter", currentFilter);
-  renderTimeEntries();
-})
+
 
 //export csv option 
 function exportTaskHistoryToCSV(){
@@ -387,13 +379,13 @@ function exportTaskHistoryToCSV(){
     return;
   }
     if(currentFilter !== "All Clients"){
-      entries = entries.filter(e => e.client === currentFilter);
+      entries = entries.filter(e => e.clientId === currentFilter);
     }
     
    let csvContent = "Client,Case type,Sub case,Task,Start time,End time,Hours,Rate,Total\n";
 
    entries.forEach(e=>{
-    const client = clients.find(c => c.name === e.client);
+    const client = clients.find(c => c.id === e.clientId);
     const rateNum = client? parseFloat(client.rate):0;
     const hoursNum = typeof e.hours === "number"?e.hours : parseFloat(e.hours);
     const total  = (hoursNum*rateNum).toFixed(2);
@@ -419,9 +411,69 @@ document.getElementById("exportCSV").addEventListener("click", exportTaskHistory
 })
 
 
+//funtion to populate filter in timeEntries table
+function populateClientFilter(){
+  const filterSelect = document.getElementById("currentFilter");
+  if(!filterSelect) return;
+   
+  filterSelect.innerHTML= "";
+
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "All Clients";
+  defaultOption.textContent = "All Clients";
+  filterSelect.appendChild(defaultOption);
+
+
+   
+   clients.forEach(client =>{
+
+    const option = document.createElement("option");
+    option.value = client.id;
+    option.textContent = client.name;
+    filterSelect.appendChild(option);
+
+    filterSelect.value = currentFilter;
+       
+
+   })
+   if (clients.some(c => c.id === currentFilter) || currentFilter === "All Clients") {
+       filterSelect.value = currentFilter;
+     } else {
+       filterSelect.value = "All Clients";
+       currentFilter = "All Clients";
+     }
+
+   
+   
+
+
+
+
+}
+
+ 
+const filterSelect = document.getElementById("currentFilter");
+filterSelect.addEventListener("change",(e)=>{
+  currentFilter = e.target.value;
+  localStorage.setItem("currentFilter", currentFilter);
+  renderTimeEntries();
+})
   
 
+onAuthStateChanged(auth, async user =>{
+  if(user){
+    document.getElementById("crm").style.display = "block";
+    document.getElementById("auth").style.display = "none";
+        await loadClients();
+        await loadTimeEntries();
+        populateClientFilter();
+        renderTimeEntries();
 
+  }else{
+    document.getElementById("crm").style.display = "none";
+    document.getElementById("auth").style.display = "block";
+  }
+})
 
 
 

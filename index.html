@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
+<div id="crm">
     <nav>
         <ul>
             <li><a href="#"></a>Dashboard</li>
@@ -16,13 +16,12 @@
             <li><a href="#"></a>Invoices</li>
             <li><a href="#"></a>settings</li>   
         </ul>
+
+        <button type="button" id="logoutBtn">Log out</button>
     </nav>
 
 
-   
 
-    <main>
-        <h1>Welcome to CrM</h1>
         <div class="main-container">
             <div class="left-column">
         <section class="card">
@@ -127,14 +126,23 @@
          </section>
         </div>
         </div> 
+</div>
+
+       <div id="auth">
+                 <h2>SignUp/Login</h2>
+                 <form action="">
+                     <div class="input">
+                         <input type="email" placeholder="Email" id="email" required>
+                         <input type="password" placeholder="Password" id="password" required>
+                    </div>
+                         <button type="button" id="loginBtn">Login</button>
+                         <button type="button" id="signupBtn">Sign Up</button>
+                     </div>
+                 </form>
+             </div>
 
 
-    </main>
-
-
-
-
- </div>
+ 
  <footer><p>&copy; 2025 Law Office Dashboard. All rights reserved.</p></footer>
     
     <script  type="module" src="js/script.js"></script>
