@@ -2,7 +2,7 @@
 import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } 
 from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } 
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword, signOut, onAuthStateChanged } 
 from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 
@@ -22,27 +22,56 @@ const auth = getAuth(app);
 
 //----signup authentification field--- 
 
+ function validatePassword(password){
+    const strongRegex = /^(?=.*[0-9])(?=.*[a-zA-Z]).{8,}$/;
+    return strongRegex.test(password);
+  }
+
  document.getElementById("signupBtn").addEventListener("click",()=>{
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
+  if(!validatePassword(password)){
+       alert("Password must be at least 8 characters, include a number and a letter.")
+       return
+    }
+
   createUserWithEmailAndPassword(auth, email, password)
-  .then(()=> alert("signup success"))
+  
+  .then((userCred)=> {
+    return sendEmailVerification(userCred.user);
+  })
+  .then(()=> alert("Account created, please check your Email for verification"))
   .catch(err => alert("signup failed! try again"));
  })
 
-
+  
  document.getElementById("loginBtn").addEventListener("click",()=>{
    const email = document.getElementById("email").value;
    const password = document.getElementById("password").value;
  
    signInWithEmailAndPassword(auth, email, password)
-   .then(()=> alert("login success"))
+   .then((userCred)=> {
+    if(!userCred.user.emailVerified){
+      alert("please verify your email before logging in");
+      return signOut(auth);
+    }
+    alert("login success")})
    .catch(err => alert("login failed !"));
   })
  
   document.getElementById("logoutBtn").addEventListener("click",()=>{
   signOut(auth)
+  .then(()=> alert("loggeed out !"))
+  .catch(err=> alert("logout failed " + err.message));
+  
+  })
+
+  document.getElementById("resetBtn")?.addEventListener("click",()=>{
+    const email = document.getElementById("email").value;
+    sendPasswordResetEmail(email, auth)
+    .then(()=> alert("email sent"))
+    .catch(err => alert("email failed" + err.message));
   })
     
 let timeEntries = [];
